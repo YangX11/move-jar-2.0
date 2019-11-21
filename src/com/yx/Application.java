@@ -1,72 +1,55 @@
 package com.yx;
 
+import com.yx.config.Config;
+import com.yx.utils.CommandUtils;
+import com.yx.utils.FileUtils;
+import com.yx.utils.LogUtils;
+
 import java.io.*;
-import java.nio.charset.Charset;
 import java.util.*;
-import java.util.Timer;
 
 /**
  * 主程序
  */
 public class Application {
 
-    static Map<String,String> moduleJarMap = new HashMap<>();
-
     public static void main(String[] args) throws Exception {
         Application.start();
     }
 
+    static Map<String,String> moduleJarMap = new HashMap<>();
+
+
     public static void start() throws Exception{
-        String tempDir = "_" + new Date().getTime();
-        StringBuffer sb = new StringBuffer("cmd /c ");
         if(Config.rePackage){
-            sb.append(" cd " + Config.pathSour + " && mvn clean && mvn package &&");
+            LogUtils.printInfo("正在执行命令[mvn clean package]...");
+            CommandUtils.exectueCommand("cmd /c cd " + Config.pathSour + " && mvn clean package");
         }
+        String tempDir = "_" + new Date().getTime();
         //1、复制为临时文件
-        sb.append(" xcopy " + Config.resource + " " + Config.pathProject + File.separator + tempDir + File.separator + " /e" );
+        LogUtils.printInfo("正在准备文件...");
+        FileUtils.cloneDirAndFiles("resources" + File.separator + "hpmservice","resources" + File.separator + tempDir);
         //2、根据项目路径，整理jar包
         forEachFile(new File(Config.pathSour));
         //3、复制moduleJar到临时文件
-        moduleJarMap.forEach((fileName,filePath)->{     //迁移模块jar包
-            sb.append(" && xcopy " + filePath + " " + Config.pathProject + File.separator + tempDir + File.separator + "module" + File.separator + getModule(fileName) + File.separator );
-        });
-        //4、复制/lib到临时文件
-        sb.append(" && xcopy " + Config.pathSour + File.separator + "lib "  + Config.pathProject + File.separator + tempDir + File.separator + "lib" + File.separator + " /e");
-        //5、将临时文件夹移动到外部目录
-        sb.append(" && move " + Config.pathProject + File.separator + tempDir + " " + Config.pathDest + File.separator + tempDir);
-        //run
-        sb.append(" && echo every thing is done...");
-        exectueCommand(sb.toString());
-    }
-
-    public static void  exectueCommand(String command){
-        try {
-            Process process = Runtime.getRuntime().exec(command);
-            printCommandInfo(process.getInputStream()); //输出正常信息
-            printCommandInfo(process.getErrorStream()); //输出异常信息
-        } catch (Exception e){
-            e.printStackTrace();
+        Iterator<Map.Entry<String,String>> it = moduleJarMap.entrySet().iterator();
+        while (it.hasNext()){
+            Map.Entry<String,String>  entry = it.next();
+            LogUtils.printInfo("正在迁移模块文件[" + entry.getKey() + "]...");
+            FileUtils.cloneFile(entry.getValue(),"resources" + File.separator + tempDir + File.separator + "module" + File.separator + getModule(entry.getKey()) + File.separator + entry.getKey());
         }
+        //4、复制/lib到临时文件
+        LogUtils.printInfo("正在迁移公共文件[/lib]...");
+        FileUtils.cloneDirAndFiles(Config.pathSour + File.separator + "lib","resources" + File.separator + tempDir + File.separator + "lib");
+        //5、写出到外部
+        LogUtils.printInfo("正在写出到外部[" + Config.pathDest + File.separator + tempDir + "]...");
+        FileUtils.cloneDirAndFiles("resources" + File.separator + tempDir,Config.pathDest + File.separator + tempDir);
+        //6、删除临时文件夹
+        LogUtils.printInfo("清理临时文件...");
+        FileUtils.deleteDirAndFiles("resources" + File.separator + tempDir);
+        LogUtils.printInfo("everything is done...");
     }
 
-    public static void printCommandInfo(InputStream inputStream){
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                try{
-                    BufferedReader br = new BufferedReader(new InputStreamReader(inputStream, Charset.forName("GBK")));
-                    String line = null;
-                    StringBuffer sb = new StringBuffer();
-                    while ((line = br.readLine()) != null) {
-                        sb.append("\n" + Config.currentTime() + line);
-                    }
-                    Config.message += sb.toString();
-                }catch (Exception e){
-                    e.printStackTrace();
-                }
-            }
-        }).start();
-    }
 
     public static String getModule(String fileName){
         String module = fileName.replace("flecy-api-","")
@@ -96,31 +79,4 @@ public class Application {
         return fileName.matches("flecy-api-.*-3.1.jar") && !isCommonJar(fileName);
     }
 
-    public static void printLogs(MainJFrame jFrame,String message){
-        StringBuffer sb = new StringBuffer(Config.message);
-        sb.append("\n" + Config.currentTime() + message);
-        Config.message = sb.toString();
-        jFrame.getTextArea1().setText(Config.message);
-    }
-
-    public static void messageListener(MainJFrame jFrame){
-        new Timer().schedule(new TimerTask() {
-            int i = 0;
-            int length = Config.message.length();
-            String currentVal = jFrame.getTextArea1().getText();
-            boolean isRunning = true;
-            @Override
-            public void run() {
-                if(Config.message.length() > length){
-                    isRunning = false;  //任意时刻message长度发生变化，则执行结束
-                }
-                if(isRunning){
-                    jFrame.getTextArea1().setText(currentVal + "\n" + Config.currentTime() + "正在执行：" + i++);
-                }else if(Config.message.length() > length){ //执行停止，且message长度变化时，则再次输出
-                    jFrame.getTextArea1().setText(Config.message);
-                    length = Config.message.length();
-                }
-            }
-        }, 0L, 1000L);
-    }
 }

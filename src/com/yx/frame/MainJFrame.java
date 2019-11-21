@@ -1,10 +1,15 @@
-package com.yx;
+package com.yx.frame;
+
+import com.yx.Application;
+import com.yx.config.Config;
+import com.yx.utils.LogUtils;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
+import java.util.TimerTask;
 
 /**
  * 程序组件
@@ -19,6 +24,7 @@ public class MainJFrame extends JFrame implements ActionListener {
     private JLabel label1 = new JLabel("资源地址");
     private JLabel label2 = new JLabel("输出地址");
     private JLabel label3 = new JLabel("执行打包");
+    private JLabel label4 = new JLabel("");
 
     private JTextField textField1 = new JTextField(48);
     private JTextField textField2 = new JTextField(48);
@@ -32,6 +38,7 @@ public class MainJFrame extends JFrame implements ActionListener {
     private JButton button1 = new JButton("选择");
     private JButton button2 = new JButton("选择");
     private JButton button3 = new JButton("开始执行");
+    private JButton button4 = new JButton("清空日志");
 
     private int width = 700;
     private int height = 400;
@@ -61,6 +68,8 @@ public class MainJFrame extends JFrame implements ActionListener {
         buttonGroup.add(radio2);
         radio1.setSelected(true);
         panel3.add(button3);
+        panel3.add(button4);
+        panel3.add(label4);
 
         panel4.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
 
@@ -79,6 +88,7 @@ public class MainJFrame extends JFrame implements ActionListener {
         button1.addActionListener(this);
         button2.addActionListener(this);
         button3.addActionListener(this);
+        button4.addActionListener(this);
         radio1.addActionListener(this);
         radio2.addActionListener(this);
 
@@ -88,12 +98,18 @@ public class MainJFrame extends JFrame implements ActionListener {
     public void actionPerformed(ActionEvent e) {
         Object source = e.getSource();
         if(source == button1){
-            Config.pathSour = selectFilePath();
-            this.textField1.setText(Config.pathSour);
+            String path = selectFilePath();
+            if(null != path && !"".equals(path)){
+                Config.pathSour = path;
+                this.textField1.setText(Config.pathSour);
+            }
         }
         if(source == button2){
-            Config.pathDest = selectFilePath();
-            this.textField2.setText(Config.pathDest);
+            String path = selectFilePath();
+            if(null != path && !"".equals(path)){
+                Config.pathDest = path;
+                this.textField2.setText(Config.pathDest);
+            }
         }
         if(radio1.isSelected()){
             Config.rePackage = Boolean.TRUE;
@@ -103,15 +119,26 @@ public class MainJFrame extends JFrame implements ActionListener {
         }
         if(source == button3){
             if(checkPathDir(Config.pathSour) && checkPathDir(Config.pathDest)){
-                try {
-                    Application.messageListener(this);  //开始信息监听
-                    Application.start();                        //开始执行程序
-                }catch (Exception exception){
-                    exception.printStackTrace();
-                }
+                java.util.Timer timer = startTimelabel();   //执行开始，打开计时器
+                LogUtils.logListener(this);         //开始信息监听
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        try {
+                            Application.start();                        //开始执行主程序
+                            timer.cancel();                             //执行结束，关闭计时器
+                        }catch (Exception exception){
+                            exception.printStackTrace();
+                        }
+                    }
+                }).start();
             }else{
-                Application.printLogs(this,"资源地址或输出地址不能为空...");
+                LogUtils.printLogs(this,"资源地址或输出地址不能为空...");
             }
+        }
+        if(source == button4){
+            Config.message = Config.defaultMeaasge();
+            textArea1.setText(Config.message);
         }
     }
 
@@ -137,4 +164,18 @@ public class MainJFrame extends JFrame implements ActionListener {
     public void setTextArea1(JTextArea textArea1) {
         this.textArea1 = textArea1;
     }
+
+    //时间显示
+    private java.util.Timer startTimelabel() {
+        java.util.Timer timer =  new java.util.Timer();
+        timer.schedule(new TimerTask() {
+            int i = 0;
+            @Override
+            public void run() {
+                label4.setText("已执行: " + i++  + " s");
+            }
+        }, 0L, 1000L);
+        return timer;
+    }
+
 }
