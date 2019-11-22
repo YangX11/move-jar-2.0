@@ -12,21 +12,17 @@ public class CommandUtils {
     /**
      * 命令执行方法
      */
-    public static void  exectueCommand(String command){
-        try {
-            Process process = Runtime.getRuntime().exec(command);
-            printCommandInfo(process.getInputStream()); //输出正常信息
-            printCommandInfo(process.getErrorStream()); //输出异常信息
-            process.waitFor();
-        } catch (Exception e){
-            e.printStackTrace();
-        }
+    public static void  exectueCommand(String command) throws Exception{
+        Process process = Runtime.getRuntime().exec(command);
+        printCommandInfo(process.getInputStream()); //输出正常信息
+        printCommandInfo(process.getErrorStream()); //输出异常信息
+        process.waitFor();
     }
 
     /**
      * 异步输出cmd信息
      */
-    public static void printCommandInfo(InputStream inputStream){
+    public static void printCommandInfo(InputStream inputStream) throws Exception{
         new Thread(new Runnable() {
             @Override
             public void run() {
@@ -39,7 +35,7 @@ public class CommandUtils {
                     }
                     Config.message += sb.toString();
                 }catch (Exception e){
-                    e.printStackTrace();
+                    LogUtils.printInfo(e.getMessage());
                 }
             }
         }).start();

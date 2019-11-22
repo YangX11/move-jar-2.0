@@ -124,12 +124,8 @@ public class MainJFrame extends JFrame implements ActionListener {
                 new Thread(new Runnable() {
                     @Override
                     public void run() {
-                        try {
-                            Application.start();                        //开始执行主程序
-                            timer.cancel();                             //执行结束，关闭计时器
-                        }catch (Exception exception){
-                            exception.printStackTrace();
-                        }
+                        Application.start();                        //开始执行主程序
+                        timer.cancel();                             //执行结束，关闭计时器
                     }
                 }).start();
             }else{
