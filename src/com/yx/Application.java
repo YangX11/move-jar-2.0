@@ -2,8 +2,8 @@ package com.yx;
 
 import com.yx.config.Config;
 import com.yx.utils.CommandUtils;
-import com.yx.utils.FileUtils;
 import com.yx.utils.LogUtils;
+import com.yx.utils.WriteUtil;
 
 import java.io.*;
 import java.util.*;
@@ -19,7 +19,6 @@ public class Application {
 
     static Map<String,String> moduleJarMap = new HashMap<>();
 
-
     public static void start(){
         try{
             if(Config.rePackage){
@@ -27,33 +26,28 @@ public class Application {
                 CommandUtils.exectueCommand("cmd /c cd " + Config.pathSour + " && mvn clean package");
             }
             String tempDir = "_" + new Date().getTime();
-            //1、复制为临时文件
-            LogUtils.printInfo("正在准备文件...");
-            FileUtils.cloneDirAndFiles("resources" + File.separator + "hpmservice","resources" + File.separator + tempDir);
+            //1、复制基础文件
+            LogUtils.printInfo("正在准备基础文件...");
+            WriteUtil.loadRecourseFromJarByFolder("/hpmservice",Config.pathDest + File.separator + tempDir);
             //2、根据项目路径，整理jar包
+            LogUtils.printInfo("正在准备变更文件...");
             forEachFile(new File(Config.pathSour));
             //3、复制moduleJar到临时文件
             Iterator<Map.Entry<String,String>> it = moduleJarMap.entrySet().iterator();
             while (it.hasNext()){
                 Map.Entry<String,String>  entry = it.next();
                 LogUtils.printInfo("正在迁移模块文件[" + entry.getKey() + "]...");
-                FileUtils.cloneFile(entry.getValue(),"resources" + File.separator + tempDir + File.separator + "module" + File.separator + getModule(entry.getKey()) + File.separator + entry.getKey());
+                WriteUtil.cloneFile(entry.getValue(),Config.pathDest + File.separator + tempDir + File.separator  + "hpmservice" + File.separator + "module" + File.separator + getModule(entry.getKey()) + File.separator + entry.getKey());
             }
             //4、复制/lib到临时文件
             LogUtils.printInfo("正在迁移公共文件[/lib]...");
-            FileUtils.cloneDirAndFiles(Config.pathSour + File.separator + "lib","resources" + File.separator + tempDir + File.separator + "lib");
-            //5、写出到外部
-            LogUtils.printInfo("正在写出到外部[" + Config.pathDest + File.separator + tempDir + "]...");
-            FileUtils.cloneDirAndFiles("resources" + File.separator + tempDir,Config.pathDest + File.separator + tempDir);
-            //6、删除临时文件夹
-            LogUtils.printInfo("清理临时文件...");
-            FileUtils.deleteDirAndFiles("resources" + File.separator + tempDir);
+            WriteUtil.cloneDirAndFiles(Config.pathSour + File.separator + "lib",Config.pathDest + File.separator + tempDir + File.separator  + "hpmservice" + File.separator + "lib");
+            //执行完成
             LogUtils.printInfo("everything is done...");
         }catch (Exception e){
             LogUtils.printInfo("执行出错：" + e.getMessage());
         }
     }
-
 
     public static String getModule(String fileName){
         String module = fileName.replace("flecy-api-","")

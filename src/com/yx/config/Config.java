@@ -3,6 +3,7 @@ package com.yx.config;
 import javax.swing.filechooser.FileSystemView;
 import java.io.File;
 import java.text.SimpleDateFormat;
+import java.util.Arrays;
 import java.util.Date;
 
 public class Config {
@@ -16,10 +17,17 @@ public class Config {
 
     public static String message = defaultMeaasge();
 
+    private static String[] disks = new String[]{"C:\\","D:\\","E:\\","F:\\"};
+
     static {
         //输出目录默认为用户桌面目录
         pathDest = FileSystemView.getFileSystemView() .getHomeDirectory().getAbsolutePath();
+        //输入目录自动查找
+        for (String disk : disks) {
+
+        }
     }
+
 
     public static String currentTime(){
         return new SimpleDateFormat("[HH:mm:ss:SSS]").format(new Date());
