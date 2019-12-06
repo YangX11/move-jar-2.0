@@ -2,7 +2,9 @@ package com.yx.frame;
 
 import com.yx.Application;
 import com.yx.config.Config;
+import com.yx.utils.Constant;
 import com.yx.utils.LogUtils;
+import com.yx.utils.PropertyUtils;
 
 import javax.swing.*;
 import java.awt.*;
@@ -10,6 +12,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
 import java.util.TimerTask;
+import java.util.regex.Pattern;
 
 /**
  * 程序组件
@@ -133,7 +136,6 @@ public class MainJFrame extends JFrame implements ActionListener {
             }
         }
         if(source == button4){
-            Config.message = Config.defaultMeaasge();
             textArea1.setText(Config.message);
         }
     }
@@ -176,6 +178,9 @@ public class MainJFrame extends JFrame implements ActionListener {
     private void shutdownTimelabel(java.util.Timer timer) {
         timer.cancel();
         label4.setText(label4.getText() + " 执行完毕");
+        //把执行时间写入配置文件
+        String time = Pattern.compile("[^0-9]").matcher(label4.getText()).replaceAll("").trim();
+        PropertyUtils.writeTime(Config.rePackage ? Constant.PACKAGE_RE_TIME : Constant.PACKAGE_NO_TIME ,time);
     }
 
 }
