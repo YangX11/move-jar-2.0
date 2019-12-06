@@ -119,17 +119,17 @@ public class MainJFrame extends JFrame implements ActionListener {
         }
         if(source == button3){
             if(checkPathDir(Config.pathSour) && checkPathDir(Config.pathDest)){
-                java.util.Timer timer = startTimelabel();   //执行开始，打开计时器
-                LogUtils.logListener(this);         //开始信息监听
+                java.util.Timer timer = startupTimelabel();     //执行开始，打开计时器
+                LogUtils.logListener(this);             //开始信息监听
                 new Thread(new Runnable() {
                     @Override
                     public void run() {
-                        Application.start();                        //开始执行主程序
-                        timer.cancel();                             //执行结束，关闭计时器
+                        Application.start();                    //开始执行主程序
+                        shutdownTimelabel(timer);               //执行结束，关闭计时器
                     }
                 }).start();
             }else{
-                LogUtils.printLogs(this,"资源地址或输出地址不能为空...");
+                LogUtils.printInfo("资源地址或输出地址不能为空...");
             }
         }
         if(source == button4){
@@ -162,7 +162,7 @@ public class MainJFrame extends JFrame implements ActionListener {
     }
 
     //时间显示
-    private java.util.Timer startTimelabel() {
+    private java.util.Timer startupTimelabel() {
         java.util.Timer timer =  new java.util.Timer();
         timer.schedule(new TimerTask() {
             int i = 0;
@@ -172,6 +172,10 @@ public class MainJFrame extends JFrame implements ActionListener {
             }
         }, 0L, 1000L);
         return timer;
+    }
+    private void shutdownTimelabel(java.util.Timer timer) {
+        timer.cancel();
+        label4.setText(label4.getText() + " 执行完毕");
     }
 
 }

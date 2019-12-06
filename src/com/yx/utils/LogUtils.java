@@ -18,13 +18,6 @@ public class LogUtils {
         Config.message = sb.append("\n" + Config.currentTime() + message).toString();
     }
 
-    public static void printLogs(MainJFrame jFrame, String message){
-        StringBuffer sb = new StringBuffer(Config.message);
-        sb.append("\n" + Config.currentTime() + message);
-        Config.message = sb.toString();
-        jFrame.getTextArea1().setText(Config.message);
-    }
-
     public static void logListener(MainJFrame jFrame){
         new Timer().schedule(new TimerTask() {
             int length = Config.message.length();
@@ -32,6 +25,7 @@ public class LogUtils {
             public void run() {
                 if(Config.message.length() > length){
                     jFrame.getTextArea1().setText(Config.message);
+                    jFrame.getTextArea1().setCaretPosition(jFrame.getTextArea1().getText().length());//光标移动到最后
                     length = Config.message.length();
                 }
             }
