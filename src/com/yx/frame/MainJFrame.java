@@ -44,7 +44,7 @@ public class MainJFrame extends JFrame implements ActionListener {
     private JButton button4 = new JButton("清空日志");
 
     private int width = 700;
-    private int height = 400;
+    private int height = 420;
     private int screenWidth = Toolkit.getDefaultToolkit().getScreenSize().width;
     private int screenHeight = Toolkit.getDefaultToolkit().getScreenSize().height;
 
@@ -136,7 +136,7 @@ public class MainJFrame extends JFrame implements ActionListener {
             }
         }
         if(source == button4){
-            textArea1.setText(Config.message);
+            textArea1.setText(Config.currentMessage());
         }
     }
 

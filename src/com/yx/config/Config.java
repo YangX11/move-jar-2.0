@@ -26,10 +26,14 @@ public class Config {
         if("".equals(pathDest)){
             pathDest = FileSystemView.getFileSystemView() .getHomeDirectory().getAbsolutePath();
         }
+        message = currentMessage();
+    }
+
+    public static String currentMessage() {
         //设置默认提示信息
         String reTime = PropertyUtils.selectTimeAvg(Constant.PACKAGE_RE_TIME);
         String noTime = PropertyUtils.selectTimeAvg(Constant.PACKAGE_NO_TIME);
-        message = currentTime() + "本程序仅适用于windows环境，需要java环境，若勾选`执行打包`则还需要maven环境..."
+        return currentTime() + "本程序仅适用于windows环境，需要java环境，若勾选`执行打包`则还需要maven环境..."
                 + "\n" + currentTime() + "请确保环境变量配置的正确..."
                 + "\n" + currentTime() + "平均执行时间[执行打包：(是：" + reTime + "s，否：" + noTime + "s)]...";
     }
