@@ -2,6 +2,7 @@
 cd /d "%~dp0"
 net start hpmeureka
 net start hpmconfig
+ping 127.0.0.1 -n 30 >nul
 net start hpmzuul
 net start hpmproducerbonusallocation
 net start hpmproducerbonusallocationRY

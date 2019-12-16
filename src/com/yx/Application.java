@@ -22,8 +22,8 @@ public class Application {
     public static void start(){
         try{
             if(Config.rePackage){
-                LogUtils.printInfo("正在执行命令[mvn clean package]...");
-                CommandUtils.exectueCommand("cmd /c cd " + Config.pathSour + " && mvn clean package");
+                LogUtils.printInfo("正在执行命令[cd /d " + Config.pathSour + " && mvn clean package]...");
+                CommandUtils.exectueCommand("cd /d " + Config.pathSour + " && mvn clean package");
             }
             String tempDir = "_" + new Date().getTime();
             //1、复制基础文件

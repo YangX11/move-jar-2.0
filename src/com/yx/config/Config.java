@@ -10,12 +10,18 @@ import java.util.List;
 
 public class Config {
 
-    public static String pathSour = PropertyUtils.selectProperties(Constant.PATH_INPUT);
-    public static String pathDest = PropertyUtils.selectProperties(Constant.PATH_OUTPUT);
-    public static boolean rePackage = Boolean.TRUE;
+    public static String pathSour;
+    public static String pathDest;
+    public static boolean rePackage;
     public static String message;
 
     static {
+
+        pathSour = PropertyUtils.selectProperties(Constant.PATH_INPUT);
+        pathDest = PropertyUtils.selectProperties(Constant.PATH_OUTPUT);
+
+        rePackage = Boolean.TRUE;
+
         //若没有设置输出目录，默认为用户桌面目录
         if("".equals(pathDest)){
             pathDest = FileSystemView.getFileSystemView() .getHomeDirectory().getAbsolutePath();
