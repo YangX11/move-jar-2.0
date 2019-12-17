@@ -42,6 +42,8 @@ public class Application {
             //4、复制/lib到临时文件
             LogUtils.printInfo("正在迁移公共文件[/lib]...");
             WriteUtil.cloneDirAndFiles(Config.pathSour + File.separator + "lib",Config.pathDest + File.separator + tempDir + File.separator  + "hpmservice" + File.separator + "lib");
+            LogUtils.printInfo("正在迁移公共配置文件[/config/resources]...");
+            WriteUtil.cloneDirAndFiles(Config.pathSour + "\\flecy-api-service-config\\target\\resources",Config.pathDest + File.separator + tempDir + File.separator  + "hpmservice\\module\\config\\resources");
             //执行完成
             LogUtils.printInfo("everything is done...");
         }catch (Exception e){
